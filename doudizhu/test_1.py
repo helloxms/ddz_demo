@@ -214,12 +214,19 @@ def JudgeFly( Cards_three, Cards_plane,  b):
 
 def JudgeDoubleLink(Cards_double, Cards_doublelink, b):
     if len(Cards_double) >= 3:
+        m_intArray = {}
+        for i in range(15):
+            m_intArray[i] = 0
+        for i in range(len(Cards_double)):
+            m_intArray[Cards_double[i].max] = 2
+        print("JudgeDoubleLink func:")
+        print(m_intArray)
         index = 0
         j = 0
-        for i in range(len(Cards_double)-1):
-            if Cards_double[i].max+1 == Cards_double[i+1].max and Cards_double[i+1].max <12:
+        for i in range(12):
+            if m_intArray[i] == m_intArray[i+1] == 2:
                 index += 1
-                j = Cards_double[i].max+1
+                j = i+1
             else:
                 if index >= 2:
                     temp = CardStyle()
@@ -278,11 +285,8 @@ def DeleteElement( src, des):
         for i in range(len(src)):
             if src[i].max not in  deleteArray:
                 src_clean.append(src[i])
-        src = src_clean
-
-    for i in range(len(src)):
-        src[i].print_Value()
-
+        return src_clean
+    return src
 
 
 def InsertElement(src, des):
@@ -336,6 +340,9 @@ def ReviewCards(Cards, handCardBak, bBoom, bPlane, bDoublelink, bLink, bThree, b
         for i in range(len(handCardBak._three)):
             handCardTmp._three.append(handCardBak._three[i])
             m_intArray[handCardBak._three[i].max] -= 3
+        JudgeFly(handCardTmp._three, handCardTmp._doublelink, True)
+        tmp = DeleteElement(handCardTmp._three, handCardTmp._doublelink)
+        handCardTmp._three = tmp
 
     if bDouble:
         for i in range(len(handCardBak._double)):
@@ -345,9 +352,14 @@ def ReviewCards(Cards, handCardBak, bBoom, bPlane, bDoublelink, bLink, bThree, b
         index = 0
         #check double link
         #and remove duplicate double
+        print("call JudgeDoubleLink")
         JudgeDoubleLink(handCardTmp._double, handCardTmp._doublelink, True)
 
-        DeleteElement(handCardTmp._double, handCardTmp._doublelink)
+        tmp = DeleteElement(handCardTmp._double, handCardTmp._doublelink)
+        handCardTmp._double = tmp
+        print("len doublelink is:", len(handCardTmp._doublelink))
+        for i in range(len(handCardTmp._doublelink)):
+            handCardTmp._doublelink[i].print_Value()
         '''
         for i in range(12):
             if m_intArray[i] > 1:
@@ -444,10 +456,19 @@ def ReviewCards(Cards, handCardBak, bBoom, bPlane, bDoublelink, bLink, bThree, b
 
     JudgeFly(handCardTmp._three, handCardTmp._plane, True)
     JudgeDoubleLink(handCardTmp._double, handCardTmp._doublelink, True)
+    print("finish ReviewCards 1")
+    tmp = DeleteElement(handCardTmp._double, handCardTmp._doublelink)
+    for i in range(len(tmp)):
+        tmp[i].print_Value()
+    print("finish ReviewCards 2")
+    for i in range(len(handCardTmp._doublelink)):
+        handCardTmp._doublelink[i].print_Value()
+    print("finish ReviewCards 3")
+    handCardTmp._double = tmp
+    tmp = DeleteElement(handCardTmp._three, handCardTmp._plane)
+    handCardTmp._three = tmp
 
-    DeleteElement(handCardTmp._double, handCardTmp._doublelink)
-    DeleteElement(handCardTmp._three, handCardTmp._plane)
-
+    handCardTmp.print_Value()
 
     return handCardTmp
 
@@ -505,15 +526,19 @@ def SplitCards(Cards):
     JudgeFly(temp_three, temp_plane, True)
     JudgeDoubleLink(temp_double, temp_doublelink, True)
 
-    DeleteElement(temp_double, temp_doublelink)
-    DeleteElement(temp_three, temp_plane)
+    if(len(temp_doublelink)):
+        tmp = DeleteElement(temp_double, temp_doublelink)
+        temp_double = tmp
+    if(len(temp_plane)):
+        tmp = DeleteElement(temp_three, temp_plane)
+        temp_three = tmp
 
     tempboom = 0
     tempplane = 0
     tempdoublelink = 0
     templink = 0
     tempthree = 0
-    tempduble = 0
+    tempdouble = 0
     if len(temp_boom) > 0:
         tempboom = 1
     if len(temp_plane) > 0:
@@ -536,7 +561,7 @@ def SplitCards(Cards):
                 for l in range(templink+1):
                     for f in range(tempthree+1):
                         for h in range(tempdouble+1):
-                            hc_review = ReviewCards(Cards, hc, i, j, l, k, f, h)
+                            hc_review = ReviewCards(Cards, hc, i, j, k, l, f, h)
                             handNum.append(hc_review)
 
     if len(handNum)>0:
@@ -574,14 +599,15 @@ def SplitCards(Cards):
 
         for i in range(len(handNum_bak)):
             print("handNum_bak {}/{}, Shoushu={} ,Value={} ".format(i+1, len(handNum_bak), handNum_bak[i].getShoushuEx(), handNum_bak[i].getQuanzhi()))
-            handNum_bak[i].print_Value()
+            #handNum_bak[i].print_Value()
 
 
 
 
 #rank_list = [0,0,0,1,3,4,5,6,7,7,7,8,8,9,9,11,11,12,14]
 #rank_list = [3,4,5,6,7,7,7,8,8,9,9]
-rank_list = [3,4,5,6,7,7,8,8,9,9]
+#rank_list = [3,4,5,6,7,7,8,8,9,9]
+rank_list = [3,4,5,6,7,7,7,8,8,9,9]
 print("\n\nrank list:", rank_list)
 SplitCards(rank_list)
 
