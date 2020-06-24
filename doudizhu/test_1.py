@@ -104,8 +104,10 @@ class CardStyle(object):
             print("doublelink:{}--{}".format(self.min, self.max))
         if self.m_value == 7:
             print("plane:{}--{}".format(self.min, self.max))
-        if self.m_value >= 8:
+        if self.m_value == 8:
             print("boom:", self.max)
+        if self.m_value == 9:
+            print("rocket:", self.max)
         #print("max ", self.max, "min ", self.min, "value ", self.m_value)
 
 
@@ -226,7 +228,8 @@ def getAllDoubleLink(intArray, Cards_doublelink, iBoom, iThree):
     tmpArray = {}
     for i in range(12):
         tmpArray[i] = intArray[i]
-
+    print("getAllDoubleLink intArray:{}".format(intArray))
+    print("iBoom:{}, iThree:{}".format(iBoom, iThree))
     for i in range(12):
         if iThree == 0 and tmpArray[i] == 3:
             tmpArray[i] = 0
@@ -416,10 +419,16 @@ def ReviewCards(Cards, handCardBak, iBoom, iPlane, iDoublelink, iThree, iDouble)
         m_intArray[i] = 0
     for i in range(len(Cards)):
         m_intArray[Cards[i]] += 1
-    #print("ReviewCards:")
+    print("ReviewCards func:")
     print(m_intArray)
     print("iBoom:{}, iPlane：{}, iDoublelink:{}, iThree:{}, iDouble:{}".format(iBoom, iPlane, iDoublelink, iThree, iDouble))
     handCardTmp = handCard()
+    if len(handCardBak._rocket) > 0:
+        for i in range(len(handCardBak._rocket)):
+            handCardTmp._rocket.append(handCardBak._rocket[i])
+        m_intArray[13] -= 1
+        m_intArray[14] -= 1
+
     if iBoom > 0:
         for i in range(len(handCardBak._boom)):
             handCardTmp._boom.append(handCardBak._boom[i])
@@ -553,7 +562,7 @@ def getIndexArray(tmparray):
         a = list(itertools.combinations(temp, i))
         for j in range(len(a)):
             result.append( list(a[j]))
-    print(result)
+    # print(result)
     return result
 
 def getTempArr(Cards, idxArr):
@@ -566,6 +575,7 @@ def getTempArr(Cards, idxArr):
     return tmp
 
 def SplitCards(Cards):
+    print("SplitCards func:")
     temp_rocket = []
     temp_boom = []
     temp_plane = []
@@ -583,9 +593,9 @@ def SplitCards(Cards):
     handNum = []
     if m_intArray[13] == 1 and m_intArray[14] == 1:
         cs = CardStyle()
-        cs.max = 15
-        cs.min = 15
-        cs.m_value = 8
+        cs.max = 14
+        cs.min = 14
+        cs.m_value = 9
         cs.m_ISprimary = True
         m_intArray[13] = 0
         m_intArray[14] = 0
@@ -632,7 +642,16 @@ def SplitCards(Cards):
         tmp = DeleteElement(temp_three, temp_plane)
         temp_three = tmp
 
-    getAllDoubleLink(m_intArray, temp_doublelink, 0, len(temp_three))
+    print("test1:")
+    if len(temp_three) > 0 or len(temp_double) > 0:
+        tempArray = {}
+        for i in range(15):
+            tempArray[i] = 0
+        for i in range(len(temp_three)):
+            tempArray[temp_three[i].max] = 3
+        for i in range(len(temp_double)):
+            tempArray[temp_double[i].max] = 2
+    getAllDoubleLink(tempArray, temp_doublelink, 0, len(temp_three))
 
     if(len(temp_doublelink)):
         tmp = DeleteElement(temp_double, temp_doublelink)
@@ -703,7 +722,9 @@ def SplitCards(Cards):
 #rank_list = [1, 1, 3, 4, 4, 4, 5, 6, 6, 7, 9, 9, 9, 10, 10, 10, 11, 11, 12, 12]
 #rank_list = [0, 1, 1, 2, 3, 4, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 9, 10, 12]
 #rank_list =  [0, 1, 1, 3, 3, 4, 4, 5, 5, 5, 6, 7, 7, 8, 9, 11, 12, 12, 12, 14]
-rank_list =  [0, 1, 1, 2, 2, 4, 5, 7, 7, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12]
+#rank_list =  [0, 1, 1, 2, 2, 4, 5, 7, 7, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12]
+#rank_list =  [1, 1, 2, 3, 3, 4, 4, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13, 14]
+#rank_list =  [0, 0, 4, 4, 4, 4, 6, 6, 7, 7, 7, 7, 9, 9, 10, 10, 11, 11, 12, 12]
 print("\n\nrank list:", rank_list)
 SplitCards(rank_list)
 
