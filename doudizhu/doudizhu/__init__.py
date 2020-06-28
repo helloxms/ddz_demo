@@ -35,7 +35,9 @@ usage:
 import random
 from .engine import Doudizhu
 from .card import Card
-
+from .splitcards import CardStyle
+from .splitcards import handCard
+from .splitcards import SplitCards
 
 Doudizhu.init_doudizhu_dict()
 
