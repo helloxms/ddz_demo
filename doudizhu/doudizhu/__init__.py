@@ -38,6 +38,7 @@ from .card import Card
 from .splitcards import CardStyle
 from .splitcards import handCard
 from .splitcards import SplitCards
+from .playcards  import PlayCards
 
 Doudizhu.init_doudizhu_dict()
 

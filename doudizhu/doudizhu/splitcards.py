@@ -8,7 +8,7 @@
 """
 import itertools
 import logging
-
+import copy
 
 
 class CardStyle(object):
@@ -17,6 +17,8 @@ class CardStyle(object):
     m_value = 0
     id = 0
     m_ISprimary = False
+
+
     def print_Value(self):
         if self.m_value <= 1 :
             print("single:", self.max)
@@ -35,6 +37,7 @@ class CardStyle(object):
         if self.m_value == 9:
             print("rocket:", self.max)
         #print("max ", self.max, "min ", self.min, "value ", self.m_value)
+
 
 
 # insert CardStyle
@@ -76,6 +79,55 @@ class handCard(object):
         for i in range(len(sigle)):
             self._single.append(sigle[i])
 
+
+    def getGreater(self, iValue, iMax, iMin):
+        cs = CardStyle()
+        if iValue == -1:
+            for i in range(len(self._single)):
+                if self._single[i].max > iMax:
+                    cs = copy.copy(self._single[i])
+                    self._single.pop(i)
+                    return cs
+        if iValue == 2:
+            for i in range(len(self._double)):
+                if self._double[i].max > iMax:
+                    cs = copy.copy(self._double[i])
+                    self._double.pop(i)
+                    return cs 
+
+        if iValue == 3:
+            for i in range(len(self._three)):
+                if self._three[i].max > iMax:
+                    cs = copy.copy(self._three[i])
+                    self._three.pop(i)
+                    return cs
+        if iValue == 5:
+            for i in range(len(self._link)):
+                delta = self._link[i].max - self._link[i].min
+                if self._link[i].max > iMax and self._link[i].min> iMin and \
+                delta == iMax-iMin:
+                    cs = copy.copy(self._link[i])
+                    self._link.pop(i)
+                    return cs
+        if iValue == 6:
+            for i in range(len(self._doublelink)):
+                if self._doublelink[i].max > iMax:
+                    cs = copy.copy(self._doublelink[i])
+                    self._doublelink.pop(i)
+                    return cs
+        if iValue == 7:
+            for i in range(len(self._plane)):
+                if self._plane[i].max > iMax:
+                    cs = copy.copy(self._plane[i])
+                    self._plane.pop(i)
+                    return cs
+        if iValue == 8:
+            for i in range(len(self._boom)):
+                if self._boom[i].max > iMax:
+                    cs = copy.copy(self._boom[i])
+                    self._boom.pop(i)
+                    return cs                   
+        return cs
 
     def getShoushu(self):
         return len(self._rocket)+len(self._boom)+len(self._three)+len(self._plane)+len(self._link)+\
@@ -647,6 +699,6 @@ class SplitCards(object):
                             handNum.append(hc_review)
 
         result = self.getBestHandNum(handNum)
-
+        return result
 
 
