@@ -69,6 +69,12 @@ class PlayCards(object):
         elif len(hc._three):
             cs = hc._three[0]
             hc._three.pop(0)
+            if len(hc._single):
+                cs.esingle = hc._single[0].max
+                hc._single.pop(0)
+            elif len(hc._double):
+                cs.edouble = hc._double[0].max
+                hc._double.pop(0)
         elif len(hc._double):
             cs = hc._double[0]
             hc._double.pop(0)
@@ -88,21 +94,23 @@ class PlayCards(object):
 
     def getFollowCard(self, hc):
         tmp_cs = self._lastCard[self._lastPlayer]
-        cs = hc.getGreater(tmp_cs.m_value, tmp_cs.max, tmp_cs.min)
+        cs = hc.getGreaterCS(tmp_cs)
         if cs.m_value!= 0:
             cs.print_Value()
         return cs
 
     def Play(self, pos, bFirst):
         tmp_hc = self._hc[pos]
-        if tmp_hc.getShoushuEx() == 1:
-            print("Game finished")
-            self._gameEnd = True
 
         if bFirst:            
             self._lastCard[pos] = self.getPlayCard(tmp_hc)
         else:
             self._lastCard[pos] = self.getFollowCard(tmp_hc)
+
+        if tmp_hc.getShoushuEx() == 0:
+            tmp_hc.print_Value()
+            print("Game finished")
+            self._gameEnd = True
 
         return self._lastCard[pos]
 

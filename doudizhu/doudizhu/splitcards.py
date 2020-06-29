@@ -17,7 +17,8 @@ class CardStyle(object):
     m_value = 0
     id = 0
     m_ISprimary = False
-
+    edouble = -1
+    esingle = -1
 
     def print_Value(self):
         if self.m_value <= 1 :
@@ -25,7 +26,7 @@ class CardStyle(object):
         if self.m_value == 2:
             print("double:", self.max)
         if self.m_value == 3:
-            print("three:", self.max)
+            print("three:{} + sigle:{} + double:{}".format(self.max, self.esingle, self.edouble))
         if self.m_value == 5:
             print("link:{}--{}".format(self.min, self.max))
         if self.m_value == 6:
@@ -79,8 +80,10 @@ class handCard(object):
         for i in range(len(sigle)):
             self._single.append(sigle[i])
 
+    def getGreaterCS(self, cs):
+        return self.getGreater(cs.m_value, cs.max, cs.min, cs.esingle, cs.edouble)
 
-    def getGreater(self, iValue, iMax, iMin):
+    def getGreater(self, iValue, iMax, iMin, esingle, edouble):
         cs = CardStyle()
         if iValue == -1:
             for i in range(len(self._single)):
@@ -98,8 +101,19 @@ class handCard(object):
         if iValue == 3:
             for i in range(len(self._three)):
                 if self._three[i].max > iMax:
-                    cs = copy.copy(self._three[i])
-                    self._three.pop(i)
+                    if esingle>=0 and len(self._single) > 0:
+                        cs = copy.copy(self._three[i])
+                        cs.esingle = self._single[0].max
+                        self._single.pop(0)
+                        self._three.pop(i)
+                    elif edouble>=0 and len(self._double) > 0:
+                        cs = copy.copy(self._three[i])
+                        cs.edouble = self._double[0].max
+                        self._double.pop(0)
+                        self._three.pop(i)
+                    else:
+                        cs = copy.copy(self._three[i])
+                        self._three.pop(i)
                     return cs
         if iValue == 5:
             for i in range(len(self._link)):
