@@ -129,6 +129,20 @@ def getNextPlayer(iCur):
     if iCur == 2:
         return 0
 
+def strategy_func(cards, curplayerpos, curhand, last_hand):
+    if last_hand['type'] == COMB_TYPE.SINGLE and max(cards[curplayerpos] ) > last_hand['component'][0] :
+        if curhand['type'] == COMB_TYPE.PASS:
+            return False
+            
+    if curplayerpos == 2 and len(cards[0]) == 1 and curhand['type'] == COMB_TYPE.PASS:
+        return False
+
+    if curplayerpos == 2 and len(cards[0]) == 1 and curhand['type'] == COMB_TYPE.SINGLE:
+        if curhand['component'][0] != max( cards[curplayerpos]):
+            return False
+            
+    return True
+
 
 # 模拟每次出牌, 
 # cards 为所有玩家手牌
@@ -175,29 +189,21 @@ def hand_out(cards,curplayerpos,  last_hand = None, last_last_hand = None, cache
         if tempkey in cache:
             #print("find key:", tempkey)
             continue
-        iNextForce = False
-        if (last_hand['type'] == COMB_TYPE.PASS and current_hand['type'] == COMB_TYPE.PASS):            
-            #print("force play")
-            iResult = hand_out(make_hand(cards, curplayerpos, current_hand), getNextPlayer(curplayerpos), None, None, cache)
-            if iResult >= 0 :
-                print(iResult,' :', key)
-                cache[key] = iResult
-                return iResult
-        # 1. 当前手胜出, 则轮到下一个玩家选择出牌
-        if can_beat(last_last_hand, last_hand, current_hand) :
+
+        if strategy_func(cards, curplayerpos, current_hand, last_hand) == False:
+            continue
+
+        # 当前手胜出, 则轮到下一个玩家选择出牌
+        if can_beat(last_last_hand, last_hand, current_hand) or \
+        (last_hand['type'] == COMB_TYPE.PASS and current_hand['type'] == COMB_TYPE.PASS) or \
+        (last_hand['type'] != COMB_TYPE.PASS and current_hand['type'] == COMB_TYPE.PASS):
             #print("can beat: current hand:{}".format(current_hand['component']))
             iResult = hand_out(make_hand(cards, curplayerpos, current_hand), getNextPlayer(curplayerpos), current_hand, last_hand, cache)
             if iResult >= 0 :
                 print(iResult,' :', key)
                 cache[key] = iResult
                 return iResult
-        if (last_hand['type'] != COMB_TYPE.PASS and current_hand['type'] == COMB_TYPE.PASS):
-            #print("find next player action")
-            iResult = hand_out(make_hand(cards, curplayerpos, current_hand), getNextPlayer(curplayerpos), current_hand, last_hand, cache)
-            if iResult >= 0 :
-                print(iResult,' :', key)
-                cache[key] = iResult
-                return iResult
+
         #print("looping ...")
     #print("loop over")
     return -1
@@ -220,7 +226,7 @@ if __name__ == '__main__':
     targetPlayer = [1]
     cache={}
     result = -1
-    for i in range(20):
+    for i in range(40):
         print("\nstart a new round:")
         cards = copy.copy(pCards)
         print(cards)
